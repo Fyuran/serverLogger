@@ -1,35 +1,34 @@
-﻿cmake_minimum_required (VERSION 3.8)
-cmake_policy(SET CMP0076 NEW)
-cmake_policy(SET CMP0135 NEW)
+﻿cmake_minimum_required (VERSION 3.28)
 
-project ("btc_ArmaToJSON_x64"
-           LANGUAGES CXX
+project ("btc_serverLogger_x64"
+    LANGUAGES CXX
 )
+include(FetchContent)
 
-add_library (btc_ArmaToJSON_x64 SHARED)
-
-target_sources (btc_ArmaToJSON_x64 PRIVATE 
-    "src/armaFileFunctions.cpp"
-    "src/dllmain.cpp"
-    "src/dllmain.def"
-    "src/armaDataFunctions.cpp"
-    "include/armaDataFunctions.hpp"
-    "include/armaFileFunctions.hpp"
-    "include/dllmain.hpp"
-  )
-target_include_directories(btc_ArmaToJSON_x64 PRIVATE
+add_library (btc_serverLogger_x64 SHARED)
+target_include_directories(btc_serverLogger_x64 PRIVATE
     "include"
 )
 
-target_compile_features(btc_ArmaToJSON_x64 PRIVATE cxx_std_17)
+target_sources (btc_serverLogger_x64 PRIVATE 
+    "src/dllmain.cpp"
+    "src/dllmain.def"
+    "src/armaLogData.cpp"
+    "include/armaLogData.hpp"
+    "include/coutToDebug.hpp"
+    "include/dllmain.hpp"
+    )
+target_compile_features(btc_serverLogger_x64 PRIVATE cxx_std_20)
+
+FetchContent_Declare(json URL https://github.com/nlohmann/json/archive/refs/tags/v3.11.3.zip)
+FetchContent_MakeAvailable(json)
 
 if(MSVC)
-    target_compile_options(btc_ArmaToJSON_x64 PRIVATE
+    target_compile_options(btc_serverLogger_x64 PRIVATE
         $<$<CONFIG:>:/MT>
         $<$<CONFIG:Debug>:/MTd>
         $<$<CONFIG:Release>:/MT>
     )
-    target_compile_definitions(btc_ArmaToJSON_x64 PRIVATE _CRT_SECURE_NO_WARNINGS)
 endif()
 
 set(Boost_USE_STATIC_LIBS ON)
@@ -42,21 +41,8 @@ if(WIN32)
 endif()
 
 if(UNIX AND NOT APPLE)
-    target_link_options(btc_ArmaToJSON_x64 PRIVATE -static-libgcc -static-libstdc++)
+    target_link_options(btc_serverLogger_x64 PRIVATE -static-libgcc -static-libstdc++)
 endif()
 
-include(FetchContent)
-FetchContent_Declare(json 
-    GIT_REPOSITORY "https://github.com/nlohmann/json.git"
-)
-FetchContent_MakeAvailable(json)
-
-find_package(Boost 1.85 COMPONENTS date_time REQUIRED)
-target_link_libraries(btc_ArmaToJSON_x64 PRIVATE nlohmann_json::nlohmann_json Boost::date_time)
-
-if(WIN32) 
-    install(TARGETS btc_ArmaToJSON_x64 DESTINATION "D:/SteamLibrary/steamapps/common/Arma 3")
-endif()
-if(UNIX)
-    install(TARGETS btc_ArmaToJSON_x64 DESTINATION "~/.local/share/Steam/steamapps/common/Arma 3 Server")
-endif()
+find_package(Boost 1.85 REQUIRED)
+target_link_libraries(btc_serverLogger_x64 PRIVATE Boost::boost nlohmann_json::nlohmann_json)
