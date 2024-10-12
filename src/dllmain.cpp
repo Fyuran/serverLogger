@@ -1,5 +1,5 @@
-#include "dllmain.h"
-#include "armaLogData.h"
+#include "dllmain.hpp"
+#include "armaLogData.hpp"
 #include <thread>
 
 constexpr auto CURRENT_VERSION = "1.1.0.0 JSON";

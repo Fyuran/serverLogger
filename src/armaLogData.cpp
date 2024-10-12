@@ -1,4 +1,4 @@
-#include "armaLogData.h"
+#include "armaLogData.hpp"
 #include <boost/algorithm/string.hpp>
 #include <boost/range/algorithm_ext.hpp>
 #include <fstream>
