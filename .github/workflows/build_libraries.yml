@@ -40,7 +40,7 @@ jobs:
           -DCMAKE_CXX_COMPILER=cl ^
           -DBOOST_ROOT="%BOOST_ROOT%"
         cmake --build build --config Release
-        
+
     - uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -51,26 +51,55 @@ jobs:
         asset_content_type: application/vnd.microsoft.portable-executable
 
   build-linux:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest # Still need a host runner, but jobs run in the container
     container:
-      image: debian:12
+      image: debian:12 # Specify the Debian 12 image
     steps:
     - uses: actions/checkout@v3
-    - name: Setup
+
+    - name: Install Dependencies (Debian 12)
       run: |
         apt-get update
-        apt-get install -y ninja-build g++ make libboost-all-dev cmake
-    - name: Build
+        # Install essentials: C++ compiler, CMake, Ninja, Boost dev libraries (version 1.74 on Debian 12)
+        apt-get install -y --no-install-recommends \
+          g++ \
+          cmake \
+          ninja-build \
+          libboost-dev \
+          libboost-filesystem-dev \
+          libboost-system-dev \
+          libboost-thread-dev \
+          make # Some cmake steps might still invoke make
+        # Clean up apt cache
+        rm -rf /var/lib/apt/lists/*
+
+    - name: Configure CMake
       run: |
         cmake -B build -G Ninja \
-        -DCMAKE_BUILD_TYPE=Release \
-        -DBUILD_SHARED_LIBS=ON
-        cmake --build build --config Release
-    - uses: actions/upload-release-asset@v1
+          -DCMAKE_BUILD_TYPE=Release \
+          -DBUILD_SHARED_LIBS=ON \
+          -DCMAKE_CXX_STANDARD=17
+
+    - name: Build
+      run: cmake --build build --config Release
+
+    - name: Verify Build and Check Dependencies
+      run: |
+        echo "=== Checking File Type ==="
+        file build/libbtc_serverLogger_x64.so
+        echo "\n=== Checking Dynamic Dependencies (ldd) ==="
+        ldd build/libbtc_serverLogger_x64.so
+        echo "\n=== Checking GLIBC Requirements (objdump) ==="
+        # Install binutils if not present (needed for objdump)
+        if ! command -v objdump &> /dev/null; then apt-get update && apt-get install -y --no-install-recommends binutils && rm -rf /var/lib/apt/lists/*; fi
+        objdump -T build/libbtc_serverLogger_x64.so | grep -E 'GLIBC_|GLIBCXX_' || echo "No specific GLIBC/GLIBCXX symbols found or grep failed."
+
+    - name: Upload Linux Artifact
+      uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ./build/btc_serverLogger_x64.so
-        asset_name: btc_serverLogger_x64.so
+        asset_path: ./build/libbtc_serverLogger_x64.so # Correct Linux artifact name
+        asset_name: libbtc_serverLogger_x64.so # Correct Linux artifact name
         asset_content_type: application/x-sharedlib
