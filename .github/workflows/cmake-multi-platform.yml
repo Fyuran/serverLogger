@@ -10,17 +10,8 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.config.os }}
-    strategy:
-      matrix:
-        config:
-        - os: ubuntu-20.04
-          container: debian:bookworm
-          cfgpreset: 'linux-release'
-          buildp: 'linux-release-build'
-        - os: windows-2019
-          cfgpreset: 'windows-release'
-          buildp: 'windows-release-build'
+    runs-on: ubuntu-20.04
+    container: debian:bookworm
     steps:
       - uses: lukka/get-cmake@latest
       - name: Setup anew (or from cache) vcpkg (and does not build any package)
@@ -33,12 +24,12 @@ jobs:
           # This is the default path to the CMakeLists.txt along side the
           # CMakePresets.json. Change if you need have CMakeLists.txt and CMakePresets.json
           # located elsewhere.
-          cmakeListsTxtPath: '../CMakeLists.txt'
-          configurePreset: ${{ matrix.config.cfgpreset }}
+          # cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
+          configurePreset: 'linux-release'
           # Additional arguments can be appended to the cmake command.
           # This is useful to reduce the number of CMake's Presets since you can reuse
           # an existing preset with different variables.
           configurePresetAdditionalArgs: "['-DENABLE_YOUR_FEATURE=1']"
 
           # This is the name of the CMakePresets.json's configuration to build the project.
-          buildPreset: ${{ matrix.config.buildp }}
+          buildPreset: 'linux-release-build'
