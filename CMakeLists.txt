@@ -10,7 +10,7 @@ if(WIN32)
     set(VCPKG_TARGET_TRIPLET x64-windows-static)
     add_compile_definitions(_WIN32_WINNT=0x0A00)
 elseif(UNIX AND NOT APPLE)
-    set(VCPKG_TARGET_TRIPLET x64-linux-static)
+    set(VCPKG_TARGET_TRIPLET x64-linux)
 endif()
 
 project ("btc_serverLogger_x64"
@@ -34,7 +34,7 @@ if(UNIX AND NOT APPLE)
     target_link_options(btc_serverLogger_x64 PRIVATE -static-libgcc -static-libstdc++)
 endif()
 
-find_package(nlohmann_json CONFIG REQUIRED)
+find_package(nlohmann_json REQUIRED)
 target_link_libraries(btc_serverLogger_x64 PRIVATE nlohmann_json::nlohmann_json)
 
 find_package(Boost COMPONENTS algorithm range REQUIRED) 
