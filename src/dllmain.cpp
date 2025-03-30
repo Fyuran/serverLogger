@@ -1,8 +1,14 @@
 #include "dllmain.hpp"
 #include "armaLogData.hpp"
 #include <thread>
+#include <cstring>  // Added for strcmp
 
 constexpr auto CURRENT_VERSION = "1.1.0.0 JSON";
+
+int strncpy_safe(char* output, const String src)
+{
+	return strncpy_safe(output, src.c_str(), static_cast<int>(src.length()) + 1);
+}
 
 int strncpy_safe(char* output, const char* src, int size)
 {
@@ -23,13 +29,20 @@ void RVExtensionVersion(char* output, int outputSize) {
 }
 
 void RVExtension(char* output, int outputSize, const char* function) {
+	(void)function;  // Explicitly indicate that this parameter is intentionally unused
 	strncpy_safe(output, "use RVExtensionArgs, available functions: manageSession", outputSize);
+}
+
+// Implement the missing callback registration function
+void RVExtensionRegisterCallback(int(*callbackProc)(char const*, char const*, char const*)) {
+	// This is a stub implementation - the extension doesn't use callbacks currently
+	(void)callbackProc; // Avoid unused parameter warning
 }
 
 //"extension" callExtension["function", ["arguments"...]]
 int RVExtensionArgs(char* output, int outputSize, const char* function, const char** args, int argsCnt) {
 	std::vector<String> arguments;
-	for (unsigned int i = 0; i < argsCnt; i++)
+	for (int i = 0; i < argsCnt; i++)  // Changed from unsigned int to int to match argsCnt type
 		arguments.push_back(args[i]);
 
 	/*DATA FUNCTIONS*/

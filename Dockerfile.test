@@ -1,0 +1,45 @@
+FROM debian:12
+
+# Install build essentials and basic tools
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libc-bin \
+    file \
+    wget \
+    python3 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install latest CMake
+RUN wget https://github.com/Kitware/CMake/releases/download/v3.28.3/cmake-3.28.3-linux-x86_64.sh -q && \
+    chmod +x cmake-3.28.3-linux-x86_64.sh && \
+    ./cmake-3.28.3-linux-x86_64.sh --skip-license --prefix=/usr && \
+    rm cmake-3.28.3-linux-x86_64.sh
+
+# Install Boost 1.83.0
+RUN wget https://sourceforge.net/projects/boost/files/boost/1.83.0/boost_1_83_0.tar.gz && \
+    tar xf boost_1_83_0.tar.gz && \
+    cd boost_1_83_0 && \
+    ./bootstrap.sh --with-libraries=system,filesystem,thread && \
+    ./b2 install && \
+    cd .. && \
+    rm -rf boost_1_83_0*
+
+WORKDIR /app
+COPY . .
+
+# Build the library
+RUN mkdir build && cd build && \
+    cmake .. && \
+    cmake --build .
+
+# Create a test script
+RUN echo '#!/bin/bash\n\
+echo "=== Testing Library ==="\n\
+cd build\n\
+echo "Checking library dependencies:"\n\
+ldd *.so\n\
+echo "\nChecking GLIBC version requirements:"\n\
+objdump -T *.so | grep GLIBC\n\
+' > /app/test.sh && chmod +x /app/test.sh
+
+CMD ["./test.sh"]

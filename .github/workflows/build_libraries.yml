@@ -1,0 +1,76 @@
+name: Build Libraries
+on:
+  release:
+    types: [created]
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Visual Studio Environment
+      uses: microsoft/setup-msbuild@v1.1
+
+    - name: Setup Boost
+      shell: cmd
+      run: |
+        choco install boost-msvc-14.2 --no-progress --version=1.74.0
+        set "BOOST_ROOT=C:\local\boost_1_74_0"
+        echo BOOST_ROOT=C:\local\boost_1_74_0>> "%GITHUB_ENV%"
+
+    - name: Setup Ninja
+      uses: seanmiddleditch/gha-setup-ninja@v3
+
+    - name: Setup MSVC
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: x64
+
+    - name: Build
+      shell: cmd
+      run: |
+        cmake -B build -G Ninja ^
+          -DCMAKE_BUILD_TYPE=Release ^
+          -DCMAKE_CXX_STANDARD=17 ^
+          -DBOOST_ROOT="C:\local\boost_1_74_0" ^
+          -DCMAKE_CXX_COMPILER=cl ^
+          -DBOOST_ROOT="%BOOST_ROOT%"
+        cmake --build build --config Release
+        
+    - uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ./build/btc_serverLogger_x64.dll
+        asset_name: btc_serverLogger_x64.dll
+        asset_content_type: application/vnd.microsoft.portable-executable
+
+  build-linux:
+    runs-on: ubuntu-latest
+    container:
+      image: debian:12
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup
+      run: |
+        apt-get update
+        apt-get install -y ninja-build g++ make libboost-all-dev cmake
+    - name: Build
+      run: |
+        cmake -B build -G Ninja \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DBUILD_SHARED_LIBS=ON
+        cmake --build build --config Release
+    - uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ./build/btc_serverLogger_x64.so
+        asset_name: btc_serverLogger_x64.so
+        asset_content_type: application/x-sharedlib

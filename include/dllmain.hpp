@@ -3,6 +3,7 @@
 using String = std::string;
 
 	int strncpy_safe(char* output, const String src);
+	int strncpy_safe(char* output, const char* src, int size);
 	bool areEqual(const char* _Str1, const char* _Str2);
 
 extern "C" {
