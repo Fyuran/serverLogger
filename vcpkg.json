@@ -1,0 +1,9 @@
+{
+  "name": "server-logger",
+  "version-string": "0.1.0",
+  "dependencies": [
+    "boost-algorithm",
+    "boost-range",
+    "nlohmann-json"
+  ]
+}

@@ -3,4 +3,3 @@ EXPORTS
    RVExtension	@1
    RVExtensionArgs	@2
    RVExtensionVersion	@3
-   RVExtensionRegisterCallback	@4
