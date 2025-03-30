@@ -1,6 +1,4 @@
-# This starter workflow is for a CMake project running on multiple platforms. There is a different starter workflow if you just want a single platform.
-# See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-single-platform.yml
-name: VCPKG
+name: VCPKG(SINGLE)
 
 on:
   push:
@@ -11,13 +9,14 @@ on:
 jobs:
   build:
     runs-on: ubuntu-20.04
-    container: debian:bookworm
+    #container: debian:bookworm
     steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
       - uses: lukka/get-cmake@latest
       - name: Setup anew (or from cache) vcpkg (and does not build any package)
         uses: lukka/run-vcpkg@v11
-        with:
-           vcpkgGitCommitId: 'c63619856b89f0af4d77ba2049396039e4985418'
       - name: Run CMake consuming CMakePreset.json and run vcpkg to build packages
         uses: lukka/run-cmake@v10
         with:

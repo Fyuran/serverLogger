@@ -1,103 +1,148 @@
 {
-  "version": 6,
+  "version": 10,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
   "configurePresets": [
     {
-      "name": "base",
-      "hidden": true,
-      "generator": "Ninja",
+      "name": "ninja-multi-vcpkg",
+      "displayName": "Ninja Multi-Config",
+      "description": "Configure with vcpkg toolchain and generate Ninja project files for all configurations",
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "installDir": "${sourceDir}/out/install/${presetName}",
-      "architecture": {
-        "value": "x64",
-        "strategy": "external"
+      "generator": "Ninja Multi-Config",
+      "toolchainFile": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
+      "cacheVariables": {
+        "CMAKE_SHARED_LIBRARY_PREFIX_CXX": "",
+        "CMAKE_CXX_COMPILER": "g++"
       },
-      "toolset": {
-        "value": "host=x64",
-        "strategy": "external"
-      },
-      "cacheVariables": {
-        "CMAKE_TOOLCHAIN_FILE": {
-          "value": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
-          "type": "FILEPATH"
-        }
-      }
-    },
-    {
-      "name": "windows-base",
-      "inherits": "base",
-      "hidden": true,
-      "condition": {
-        "type": "equals",
-        "lhs": "${hostSystemName}",
-        "rhs": "Windows"
-      },
-      "cacheVariables": {
-        "CMAKE_CXX_COMPILER": "cl.exe"
-      }
-    },
-    {
-      "name": "windows-debug",
-      "inherits": "windows-base",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
-      }
-    },
-    {
-      "name": "windows-release",
-      "inherits": "windows-base",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release"
-      }
-    },
-    {
-      "name": "linux-base",
-      "inherits": "base",
-      "hidden": true,
       "condition": {
         "type": "equals",
         "lhs": "${hostSystemName}",
         "rhs": "Linux"
+      }
+    },
+    {
+      "name": "ninja-multi-windows-vcpkg",
+      "inherits": "ninja-multi-vcpkg",
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "cl.exe"
       },
-      "cacheVariables": {
-        "CMAKE_SHARED_LIBRARY_PREFIX_CXX": "",
-        "CMAKE_CXX_COMPILER": "g++"
-      }
-    },
-    {
-      "name": "linux-debug",
-      "inherits": "linux-base",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
-      }
-    },
-    {
-      "name": "linux-release",
-      "inherits": "linux-base",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release"
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
       }
     }
   ],
   "buildPresets": [
     {
-      "name": "windows-debug-build",
-      "displayName": "Build Windows Debug",
-      "configurePreset": "windows-debug"
+      "name": "ninja-vcpkg-debug",
+      "configurePreset": "ninja-multi-vcpkg",
+      "displayName": "Build (Debug)",
+      "description": "Build with Ninja/vcpkg (Debug)",
+      "configuration": "Debug"
     },
     {
-      "name": "windows-release-build",
-      "displayName": "Build Windows Release",
-      "configurePreset": "windows-release"
+      "name": "ninja-vcpkg-release",
+      "configurePreset": "ninja-multi-vcpkg",
+      "displayName": "Build (Release)",
+      "description": "Build with Ninja/vcpkg (Release)",
+      "configuration": "Release"
     },
     {
-      "name": "linux-debug-build",
-      "displayName": "Build Linux Debug",
-      "configurePreset": "linux-debug"
+      "name": "ninja-vcpkg-windows-debug",
+      "configurePreset": "ninja-multi-windows-vcpkg",
+      "displayName": "Build (Debug)",
+      "description": "Build with Ninja/vcpkg (Debug)",
+      "configuration": "Debug"
     },
     {
-      "name": "linux-release-build",
-      "displayName": "Build Linux Release",
-      "configurePreset": "linux-release"
+      "name": "ninja-vcpkg-windows-release",
+      "configurePreset": "ninja-multi-windows-vcpkg",
+      "displayName": "Build (Release)",
+      "description": "Build with Ninja/vcpkg (Release)",
+      "configuration": "Release"
+    },
+    {
+      "name": "ninja-vcpkg",
+      "configurePreset": "ninja-multi-vcpkg",
+      "displayName": "Build",
+      "description": "Build with Ninja/vcpkg",
+      "hidden": true
+    },
+    {
+      "name": "ninja-vcpkg-check-format",
+      "configurePreset": "ninja-multi-vcpkg",
+      "displayName": "Build",
+      "targets": [
+        "check-format"
+      ],
+      "description": "Build with Ninja/vcpkg check-format"
+    },
+    {
+      "name": "ninja-vcpkg-format",
+      "configurePreset": "ninja-multi-vcpkg",
+      "displayName": "Build",
+      "targets": [
+        "format"
+      ],
+      "description": "Build with Ninja/vcpkg format"
+    }
+  ],
+  "workflowPresets": [
+    {
+      "name": "format",
+      "steps": [
+        {
+          "name": "ninja-multi-vcpkg",
+          "type": "configure"
+        },
+        {
+          "name": "ninja-vcpkg-format",
+          "type": "build"
+        }
+      ]
+    },
+    {
+      "name": "check-format",
+      "steps": [
+        {
+          "name": "ninja-multi-vcpkg",
+          "type": "configure"
+        },
+        {
+          "name": "ninja-vcpkg-check-format",
+          "type": "build"
+        }
+      ]
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "test-ninja-vcpkg",
+      "configurePreset": "ninja-multi-vcpkg",
+      "hidden": true
+    },
+    {
+      "name": "test-debug",
+      "description": "Test (Debug)",
+      "displayName": "Test (Debug)",
+      "configuration": "Debug",
+      "inherits": [
+        "test-ninja-vcpkg"
+      ]
+    },
+    {
+      "name": "test-release",
+      "description": "Test (Release)",
+      "displayName": "Test (Release)",
+      "configuration": "Release",
+      "inherits": [
+        "test-ninja-vcpkg"
+      ]
     }
   ]
 }
