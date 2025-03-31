@@ -32,10 +32,14 @@ jobs:
         if: ${{ env.ACT }}
         run: |
           apt update && apt install sudo -y
-      - name: Install dependencies
-        run: |
           sudo apt upgrade -y
           sudo apt install unzip git nodejs curl build-essential -y
+      - name: Install dependencies
+        if: ${{ ! env.ACT }}
+        run: |
+          apt update
+          apt upgrade -y
+          apt install unzip git nodejs curl build-essential -y
       - uses: actions/checkout@v4
         with:
           submodules: true
