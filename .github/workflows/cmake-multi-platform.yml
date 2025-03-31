@@ -28,6 +28,14 @@ jobs:
     runs-on: ${{ matrix.config.os }}
     container: ${{ matrix.config.container }}
     steps:
+      - name: Install Act dependencies
+        if: ${{ env.ACT }}
+        run: |
+          apt update && apt install sudo -y
+      - name: Install dependencies
+        run: |
+          sudo apt upgrade -y
+          sudo apt install unzip git nodejs curl build-essential -y
       - uses: actions/checkout@v4
         with:
           submodules: true
