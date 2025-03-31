@@ -23,6 +23,9 @@ jobs:
           
     runs-on: ${{ matrix.config.os }}
     steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
       - uses: lukka/get-cmake@latest
       - name: Setup anew (or from cache) vcpkg (and does not build any package)
         uses: lukka/run-vcpkg@v11
