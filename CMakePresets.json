@@ -18,6 +18,14 @@
         "CMAKE_SHARED_LIBRARY_PREFIX_CXX": "",
         "CMAKE_CXX_COMPILER": "g++"
       },
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "toolset": {
+        "value": "host=x64",
+        "strategy": "external"
+      },
       "condition": {
         "type": "equals",
         "lhs": "${hostSystemName}",
@@ -72,77 +80,6 @@
       "displayName": "Build",
       "description": "Build with Ninja/vcpkg",
       "hidden": true
-    },
-    {
-      "name": "ninja-vcpkg-check-format",
-      "configurePreset": "ninja-multi-vcpkg",
-      "displayName": "Build",
-      "targets": [
-        "check-format"
-      ],
-      "description": "Build with Ninja/vcpkg check-format"
-    },
-    {
-      "name": "ninja-vcpkg-format",
-      "configurePreset": "ninja-multi-vcpkg",
-      "displayName": "Build",
-      "targets": [
-        "format"
-      ],
-      "description": "Build with Ninja/vcpkg format"
-    }
-  ],
-  "workflowPresets": [
-    {
-      "name": "format",
-      "steps": [
-        {
-          "name": "ninja-multi-vcpkg",
-          "type": "configure"
-        },
-        {
-          "name": "ninja-vcpkg-format",
-          "type": "build"
-        }
-      ]
-    },
-    {
-      "name": "check-format",
-      "steps": [
-        {
-          "name": "ninja-multi-vcpkg",
-          "type": "configure"
-        },
-        {
-          "name": "ninja-vcpkg-check-format",
-          "type": "build"
-        }
-      ]
-    }
-  ],
-  "testPresets": [
-    {
-      "name": "test-ninja-vcpkg",
-      "configurePreset": "ninja-multi-vcpkg",
-      "hidden": true
-    },
-    {
-      "name": "test-debug",
-      "description": "Test (Debug)",
-      "displayName": "Test (Debug)",
-      "configuration": "Debug",
-      "inherits": [
-        "test-ninja-vcpkg"
-      ]
-    },
-    {
-      "name": "test-release",
-      "description": "Test (Release)",
-      "displayName": "Test (Release)",
-      "configuration": "Release",
-      "inherits": [
-        "test-ninja-vcpkg"
-      ]
     }
   ]
 }

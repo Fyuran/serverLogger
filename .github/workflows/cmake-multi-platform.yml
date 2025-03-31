@@ -10,14 +10,22 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
-    container: debian:bookworm
+    strategy:
+      matrix:
+        config:
+        - os: ubuntu-20.04
+          container: debian:bookworm
+          cfgpreset: 'ninja-multi-vcpkg'
+          buildp: 'ninja-vcpkg-release'
+        - os: windows-2022
+          cfgpreset: 'ninja-multi-windows-vcpkg'
+          buildp: 'ninja-vcpkg-windows-release'
+          
+    runs-on: ${{ matrix.config.os }}
     steps:
       - uses: lukka/get-cmake@latest
       - name: Setup anew (or from cache) vcpkg (and does not build any package)
         uses: lukka/run-vcpkg@v11
-        with:
-           vcpkgGitCommitId: 'c63619856b89f0af4d77ba2049396039e4985418'
       - name: Run CMake consuming CMakePreset.json and run vcpkg to build packages
         uses: lukka/run-cmake@v10
         with:
@@ -25,11 +33,11 @@ jobs:
           # CMakePresets.json. Change if you need have CMakeLists.txt and CMakePresets.json
           # located elsewhere.
           # cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
-          configurePreset: 'ninja-multi-vcpkg'
+          configurePreset: ${{ matrix.config.cfgpreset }}
           # Additional arguments can be appended to the cmake command.
           # This is useful to reduce the number of CMake's Presets since you can reuse
           # an existing preset with different variables.
           # configurePresetAdditionalArgs: "['-DENABLE_YOUR_FEATURE=1']"
 
           # This is the name of the CMakePresets.json's configuration to build the project.
-          buildPreset: 'ninja-vcpkg-release'
+          buildPreset: ${{ matrix.config.buildp }}

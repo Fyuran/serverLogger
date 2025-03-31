@@ -34,7 +34,7 @@ if(UNIX AND NOT APPLE)
     target_link_options(btc_serverLogger_x64 PRIVATE -static-libgcc -static-libstdc++)
 endif()
 
-find_package(nlohmann_json CONFIG REQUIRED)
+find_package(nlohmann_json REQUIRED)
 target_link_libraries(btc_serverLogger_x64 PRIVATE nlohmann_json::nlohmann_json)
 
 find_package(Boost COMPONENTS algorithm range REQUIRED) 
