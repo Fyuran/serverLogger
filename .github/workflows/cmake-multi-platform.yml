@@ -11,6 +11,7 @@ on:
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         config:
         - os: ubuntu-24.04
@@ -29,13 +30,13 @@ jobs:
     container: ${{ matrix.config.container }}
     steps:
       - name: Install Act dependencies
-        if: ${{ env.ACT }}
+        if: ${{ (env.ACT) &&  (runner.os == 'Linux') }}
         run: |
           apt update && apt install sudo -y
           sudo apt upgrade -y
           sudo apt install unzip git nodejs curl build-essential -y
       - name: Install dependencies
-        if: ${{ ! env.ACT }}
+        if: ${{ (!env.ACT) &&  (runner.os == 'Linux') }}
         run: |
           apt update
           apt upgrade -y
