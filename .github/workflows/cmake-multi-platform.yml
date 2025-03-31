@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         config:
-        - os: ubuntu-20.04
+        - os: ubuntu-24.04
           artifactname: 'btc_serverLogger_x64.so'
           container: debian:bookworm
           cfgpreset: 'ninja-multi-vcpkg'
