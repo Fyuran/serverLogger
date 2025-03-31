@@ -34,13 +34,13 @@ jobs:
         run: |
           apt update && apt install sudo -y
           sudo apt upgrade -y
-          sudo apt install unzip pkg-config git nodejs curl build-essential -y
+          sudo apt install unzip git nodejs curl build-essential -y
       - name: Install dependencies
         if: ${{ (!env.ACT) &&  (runner.os == 'Linux') }}
         run: |
           apt update
           apt upgrade -y
-          apt install unzip pkg-config git nodejs curl build-essential -y
+          apt install unzip git nodejs curl build-essential -y
       - uses: actions/checkout@v4
         with:
           submodules: true
