@@ -26,6 +26,7 @@ jobs:
           outputfolder: './out/build/ninja-multi-windows-vcpkg/Release/btc_serverLogger_x64.dll'
           
     runs-on: ${{ matrix.config.os }}
+    container: ${{ matrix.config.container }}
     steps:
       - uses: actions/checkout@v4
         with:
